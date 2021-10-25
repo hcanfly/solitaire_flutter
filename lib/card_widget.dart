@@ -3,27 +3,29 @@ import 'board_info.dart';
 import 'card.dart';
 import 'card_utils.dart';
 
+// ignore: must_be_immutable
 class CardWidget extends StatefulWidget {
-  final PlayingCard card;
-  final OnDragPopCardsCallback
+  PlayingCard? card;
+  OnDragPopCardsCallback?
       dragStarted; // info needed to interact with Stack while dragging
-  final OnDragAddCardsCallback
+  OnDragAddCardsCallback?
       dragAddCards; // cards are deleted from stack on drag start. this adds them back to the stack if the drag is cancelled.
-  final OnDragCardsToDragCallback
+  OnDragCardsToDragCallback?
       dragCardsToDrag; // gets List of cards to be dragged from Stack
-  final OnDragCompleted dragCompleted; // tell the Stack that the drag is done
-  final int
-      stackUniqueId; // Stack Id to prevent dragging onto stack that started the drag
+  OnDragCompleted? dragCompleted; // tell the Stack that the drag is done
+  int stackUniqueId; // Stack Id to prevent dragging onto stack that started the drag
 
-  List<PlayingCard> cardsBeingDragged = List();
+  List<PlayingCard> cardsBeingDragged = [];
 
   CardWidget(
-      {@required this.card,
-      @required this.dragStarted,
-      @required this.dragAddCards,
-      @required this.dragCardsToDrag,
-      @required this.dragCompleted,
-      @required this.stackUniqueId});
+      {Key? key,
+      this.card,
+      required this.dragStarted,
+      required this.dragAddCards,
+      required this.dragCardsToDrag,
+      required this.dragCompleted,
+      required this.stackUniqueId})
+      : super(key: key);
 
   @override
   _CardWidgetState createState() => _CardWidgetState();
@@ -32,7 +34,7 @@ class CardWidget extends StatefulWidget {
 class _CardWidgetState extends State<CardWidget> {
   @override
   Widget build(BuildContext context) {
-    return widget.card.faceUp
+    return widget.card!.faceUp
         ? Draggable<Map>(
             child: Material(
               color: Colors.transparent,
@@ -54,19 +56,19 @@ class _CardWidgetState extends State<CardWidget> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text(
-                              getDisplayValueForRank(widget.card.rank),
+                              getDisplayValueForRank(widget.card!.rank),
                               style: TextStyle(
                                 fontSize: scaled(14),
                                 fontFamily: gameFontFamily,
-                                color: (widget.card.suit == Suit.club ||
-                                        widget.card.suit == Suit.spade)
+                                color: (widget.card!.suit == Suit.club ||
+                                        widget.card!.suit == Suit.spade)
                                     ? Colors.black
                                     : Colors.red,
                               ),
                             ),
-                            Container(
+                            SizedBox(
                               height: scaled(14),
-                              child: _imageAssetForSuit(widget.card),
+                              child: _imageAssetForSuit(widget.card!),
                             )
                           ],
                         ),
@@ -80,9 +82,9 @@ class _CardWidgetState extends State<CardWidget> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
-                        Container(
+                        SizedBox(
                             height: scaled(38),
-                            child: imageAssetForCardValue(widget.card)),
+                            child: imageAssetForCardValue(widget.card!)),
                       ],
                     ),
                   ],
@@ -90,18 +92,18 @@ class _CardWidgetState extends State<CardWidget> {
               ),
             ),
             onDragCompleted: () {
-              widget.dragCompleted();
+              widget.dragCompleted!();
             },
             onDraggableCanceled: (velocity, offset) {
               //restore card(s) to their stack
-              widget.dragAddCards(widget.cardsBeingDragged);
+              widget.dragAddCards!(widget.cardsBeingDragged);
             },
             data: {
               "cards": _getCardsBeingDragged(),
               "stack": widget.stackUniqueId
             },
             onDragStarted: () {
-              widget.dragStarted(_getCardsBeingDragged()
+              widget.dragStarted!(_getCardsBeingDragged()
                   .length); // tell the stack to pop card(s) and redraw
             },
             //childWhenDragging: Container(),
@@ -109,19 +111,19 @@ class _CardWidgetState extends State<CardWidget> {
             feedback: _getDragStack(
                 _getCardsBeingDragged()), //_getDraggableCard(widget.card),
           )
-        : Container(
+        : SizedBox(
             height: cardHeight,
             width: cardWidth,
             child: SizedBox.expand(
               child: Image.asset(
-                'images/PlayingCard-back.png',
+                pathRoot + 'PlayingCard-back.png',
                 fit: BoxFit.fill,
               ),
             ));
   }
 
   List<PlayingCard> _getCardsBeingDragged() {
-    widget.cardsBeingDragged = widget.dragCardsToDrag(widget.card);
+    widget.cardsBeingDragged = widget.dragCardsToDrag!(widget.card!);
 
     return widget.cardsBeingDragged;
   }
@@ -177,7 +179,7 @@ Widget _getDraggableCard(PlayingCard card) {
                                 : Colors.red,
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       height: scaled(12),
                       child: _imageAssetForSuit(card),
                     )
@@ -193,7 +195,7 @@ Widget _getDraggableCard(PlayingCard card) {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
-                Container(
+                SizedBox(
                     height: scaled(38), child: imageAssetForCardValue(card)),
               ],
             ),
@@ -205,5 +207,5 @@ Widget _getDraggableCard(PlayingCard card) {
 Widget _imageAssetForSuit(PlayingCard card) {
   var name = suitName(card.suit);
 
-  return Image.asset("images/" + name + ".png");
+  return Image.asset(pathRoot + name + ".png");
 }
