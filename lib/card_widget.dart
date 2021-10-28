@@ -5,7 +5,7 @@ import 'card_utils.dart';
 
 // ignore: must_be_immutable
 class CardWidget extends StatefulWidget {
-  PlayingCard? card;
+  late PlayingCard card;
   OnDragPopCardsCallback?
       dragStarted; // info needed to interact with Stack while dragging
   OnDragAddCardsCallback?
@@ -19,7 +19,7 @@ class CardWidget extends StatefulWidget {
 
   CardWidget(
       {Key? key,
-      this.card,
+      required this.card,
       required this.dragStarted,
       required this.dragAddCards,
       required this.dragCardsToDrag,
@@ -34,7 +34,7 @@ class CardWidget extends StatefulWidget {
 class _CardWidgetState extends State<CardWidget> {
   @override
   Widget build(BuildContext context) {
-    return widget.card!.faceUp
+    return widget.card.faceUp
         ? Draggable<Map>(
             child: Material(
               color: Colors.transparent,
@@ -56,19 +56,19 @@ class _CardWidgetState extends State<CardWidget> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text(
-                              getDisplayValueForRank(widget.card!.rank),
+                              getDisplayValueForRank(widget.card.rank),
                               style: TextStyle(
                                 fontSize: scaled(14),
                                 fontFamily: gameFontFamily,
-                                color: (widget.card!.suit == Suit.club ||
-                                        widget.card!.suit == Suit.spade)
+                                color: (widget.card.suit == Suit.club ||
+                                        widget.card.suit == Suit.spade)
                                     ? Colors.black
                                     : Colors.red,
                               ),
                             ),
                             SizedBox(
                               height: scaled(14),
-                              child: _imageAssetForSuit(widget.card!),
+                              child: _imageAssetForSuit(widget.card),
                             )
                           ],
                         ),
@@ -84,7 +84,7 @@ class _CardWidgetState extends State<CardWidget> {
                       children: <Widget>[
                         SizedBox(
                             height: scaled(38),
-                            child: imageAssetForCardValue(widget.card!)),
+                            child: imageAssetForCardValue(widget.card)),
                       ],
                     ),
                   ],
@@ -123,7 +123,7 @@ class _CardWidgetState extends State<CardWidget> {
   }
 
   List<PlayingCard> _getCardsBeingDragged() {
-    widget.cardsBeingDragged = widget.dragCardsToDrag!(widget.card!);
+    widget.cardsBeingDragged = widget.dragCardsToDrag!(widget.card);
 
     return widget.cardsBeingDragged;
   }
